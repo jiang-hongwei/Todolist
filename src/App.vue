@@ -57,6 +57,12 @@ export default {
       this.todos =  this.todos.filter((todo)=>{
         return !todo.done
       })
+    },
+    //更新一个Todo
+    updateTodo(id,title){
+      this.todos.forEach((todo)=>{
+        if(todo.id === id) todo.title = title
+      })
     }
   },
   watch:{
@@ -69,11 +75,14 @@ export default {
   },
   mounted() {
     this.$bus.$on('checkTodo',this.checkTodo)
+    this.$bus.$on('updateTodo',this.updateTodo)
     this.pubId = pubsub.subscribe('deleteTodo',this.deleteTodo)
+
   },
   beforeDestroy() {
     this.$bus.$off('checkTodo')
     pubsub.unsubscribe(this.pubId)
+    this.$bus.$off('updateTodo')
   }
 }
 </script>
