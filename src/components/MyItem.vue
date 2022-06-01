@@ -1,15 +1,19 @@
 <template>
-  <li>
-    <label>
-      <input type="checkbox" :checked="todo.done" @change="handleCheck(todo.id)"/>
-      <span v-show="!todo.isEdit">{{todo.title}}</span>
-      <input v-show="todo.isEdit" type="text"
-             :value="todo.title"
-             @blur="handleBlur(todo,$event)">
-    </label>
-    <button class="btn btn-danger" @click="handleDelete(todo.id)">删除</button>
-    <button class="btn btn-edit" @click="handleEdit(todo)">编辑</button>
-  </li>
+  <transition name="todo" appear>
+    <li>
+      <label>
+        <input type="checkbox" :checked="todo.done" @change="handleCheck(todo.id)"/>
+        <span v-show="!todo.isEdit">{{todo.title}}</span>
+        <input v-show="todo.isEdit" type="text"
+               :value="todo.title"
+               @blur="handleBlur(todo,$event)"
+               ref="inputTitle"
+        >
+      </label>
+      <button class="btn btn-danger" @click="handleDelete(todo.id)">删除</button>
+      <button v-show="!todo.isEdit" class="btn btn-edit" @click="handleEdit(todo)">编辑</button>
+    </li>
+  </transition>
 </template>
 
 <script>
@@ -38,12 +42,14 @@ export default {
       }else{
         this.$set(todo,'isEdit',true)
       }
-
-      console.log(todo)
+      this.$nextTick(function (){
+        this.$refs.inputTitle.focus()
+      })
     },
     //失去焦点回调（真正执行更改）
     handleBlur(todo,e){
       todo.isEdit = false
+      if(!e.target.value.trim()) return alert('输入不能为空！')
       this.$bus.$emit('updateTodo',todo.id,e.target.value)
     }
   }
@@ -90,4 +96,18 @@ li:hover button {
   display: block;
 }
 
+.todo-enter-active {
+  animation: atguigu 0.5s linear;
+}
+.todo-leave-active {
+  animation: atguigu 0.5s linear reverse;
+}
+@keyframes atguigu  {
+  from {
+     transform: translateY(-100%);
+  }
+  to {
+    transform: translateY(0) ;
+  }
+}
 </style>
